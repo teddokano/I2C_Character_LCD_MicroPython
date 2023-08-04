@@ -7,9 +7,14 @@ class I2C_Character_LCD:
 		self.i2c			= i2c
 		self.address		= address
 		self.blank			= "".join( [ " " for _ in range( self.width ) ] )
+		self.device_present	= True
 		
 	def send( self, data_flag, value ):
-		self.i2c.writeto( self.address, bytearray( [ self.data_byte if data_flag else self.command_byte, value ] ) )
+		if self.device_present:
+			try:
+				self.i2c.writeto( self.address, bytearray( [ self.data_byte if data_flag else self.command_byte, value ] ) )
+			except Exception as e:
+				self.device_present	= False
 
 	def command( self, command ):
 		self.send( False, command )
@@ -61,7 +66,7 @@ class AE_AQM0802( I2C_Character_LCD ):
 				self.command( v )
 			
 			utime.sleep_ms( 200 )
-
+		
 def main():
 	i2c		= I2C( 0, freq = (400 * 1000) )
 	lcd		= AE_AQM0802( i2c )
