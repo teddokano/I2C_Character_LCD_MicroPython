@@ -1,7 +1,6 @@
 from machine	import	Pin, I2C
-
 import	utime
-import	ure
+
 
 class I2C_Character_LCD:
 	def __init__( self, i2c, address ):
