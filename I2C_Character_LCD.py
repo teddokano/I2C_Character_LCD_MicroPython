@@ -1,5 +1,7 @@
 from machine	import	Pin, I2C
+import machine
 import	utime
+import	os
 
 
 class I2C_Character_LCD:
@@ -59,7 +61,8 @@ class AE_AQM0802( I2C_Character_LCD ):
 		self.lines			= 2
 		super().__init__( i2c, self.DEFAULT_ADDR )
 		
-		init_commands		= [ [ 0x38, 0x39, 0x14, 0x7A, 0x54, 0x6C ], [0x38, 0x0C, 0x01 ] ]
+#		init_commands		= [ [ 0x38, 0x39, 0x14, 0x7A, 0x54, 0x6C ], [0x38, 0x0C, 0x01 ] ]
+		init_commands		= [ [ 0x38, 0x39, 0x14, 0x70, 0x56, 0x6C ], [0x38, 0x0C, 0x01 ] ]
 
 		for seq in init_commands:
 			for v in seq:
@@ -67,9 +70,16 @@ class AE_AQM0802( I2C_Character_LCD ):
 			
 			utime.sleep_ms( 200 )
 		
+		utime.sleep_ms( 200 )
+		
 def main():
-	i2c		= I2C( 0, freq = (400 * 1000) )
+	i2c		= I2C( 0, freq = (100 * 1000) )
+	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
+	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
+
 	lcd		= AE_AQM0802( i2c )
+	utime.sleep_ms( 200 )
+	lcd.print( "192.168.100.222" )
 	
 	print( os.uname().machine + " is working!" )
 	print( "available I2C target(s): ", end = "" )
