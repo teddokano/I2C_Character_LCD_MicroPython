@@ -84,10 +84,6 @@ class AE_AQM0802( I2C_Character_LCD ):
 		
 		utime.sleep_ms( 200 )
 
-class AQM0802( AE_AQM0802 ):
-	def __init__( self, i2c ):
-		super().__init__( i2c )
-		
 class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
 	'''
 	lib for https://akizukidenshi.com/catalog/g/g117381/
@@ -115,6 +111,17 @@ class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
 		utime.sleep_ms( 200 )
 
 class ACM1602NI_FLW_FBW( I2C_Character_LCD ):
+	'''
+	lib for https://akizukidenshi.com/catalog/g/g105693/
+	pins	name
+	1		VSS(GND)
+	2		VDD(3.3V)
+	3		V0(contrast adj)
+	4		I2C_SCL
+	5		I2C_SDA
+	6		Backlight+(3.3V)
+	7		Backlight-(0V)
+	'''
 	DEFAULT_ADDR		= (0xA0 >> 1)
 	
 	def __init__( self, i2c ):
@@ -132,7 +139,15 @@ class ACM1602NI_FLW_FBW( I2C_Character_LCD ):
 		
 		utime.sleep_ms( 200 )
 		
+class AQM0802( AE_AQM0802 ):
+	def __init__( self, i2c ):
+		super().__init__( i2c )
+		
 class ACM2004( ACM2004D_FLW_FBW_IIC ):
+	def __init__( self, i2c ):
+		super().__init__( i2c )
+		
+class ACM1602( ACM1602NI_FLW_FBW ):
 	def __init__( self, i2c ):
 		super().__init__( i2c )
 		
@@ -271,7 +286,7 @@ def test_ACM1602NI_FLW_FBW():
 def main():
 #	test_AQM0802()
 #	test_ACM2004()
-	test_ACM1602NI_FLW_FBW()
+	test_ACM1602()
 		
 if __name__ == "__main__":
 	import machine
