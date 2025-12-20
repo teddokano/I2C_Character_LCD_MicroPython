@@ -8,8 +8,8 @@ class I2C_Character_LCD:
 	def __init__( self, i2c, address ):
 		self.i2c			= i2c
 		self.address		= address
-		self.blank			= "".join( [ " " for _ in range( self.width ) ] )
 		self.device_present	= True
+		self.lines			= len( self.line_select )
 		
 	def send( self, data_flag, value ):
 		if self.device_present:
@@ -33,7 +33,10 @@ class I2C_Character_LCD:
 		self.data( char )
 
 	def puts( self, str, line_num = 0 ):
-		self.command( 0x80 + 0x40 * line_num )
+		line		= line_num % self.lines
+	
+		self.command( 0x80 | (self.line_select[ line ]) )
+		
 		for c in str:
 			self.putc( ord( c ) )
 
@@ -48,7 +51,8 @@ class I2C_Character_LCD:
 		else:
 			for i, s in enumerate( string ):
 				if s is not None:
-					self.puts( s + self.blank, i )
+					blank	= "".join( [ " " for _ in range( self.width - len( s ) ) ] )
+					self.puts( s + blank, i )
 
 
 class AE_AQM0802( I2C_Character_LCD ):
@@ -58,11 +62,11 @@ class AE_AQM0802( I2C_Character_LCD ):
 		self.command_byte	= 0x00
 		self.data_byte		= 0x40
 		self.width			= 8
-		self.lines			= 2
+		self.line_select	= ( 0x00, 0x40 )
 		super().__init__( i2c, self.DEFAULT_ADDR )
 		
-#		init_commands		= [ [ 0x38, 0x39, 0x14, 0x7A, 0x54, 0x6C ], [0x38, 0x0C, 0x01 ] ]
-		init_commands		= [ [ 0x38, 0x39, 0x14, 0x70, 0x56, 0x6C ], [0x38, 0x0C, 0x01 ] ]
+		init_commands		= [ [ 0x38, 0x39, 0x14, 0x7A, 0x54, 0x6C ], [0x38, 0x0C, 0x01 ] ]	# for 5.0V operation
+		init_commands		= [ [ 0x38, 0x39, 0x14, 0x70, 0x56, 0x6C ], [0x38, 0x0C, 0x01 ] ]	# for 3.3V operation
 
 		for seq in init_commands:
 			for v in seq:
@@ -72,7 +76,25 @@ class AE_AQM0802( I2C_Character_LCD ):
 		
 		utime.sleep_ms( 200 )
 		
-def main():
+class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
+	DEFAULT_ADDR		= (0x7E >> 1)
+	
+	def __init__( self, i2c ):
+		self.command_byte	= 0x00
+		self.data_byte		= 0x40
+		self.width			= 20
+		self.line_select	= ( 0x00, 0x40, 0x14, 0x54 )
+		super().__init__( i2c, self.DEFAULT_ADDR )
+		
+		init_commands		= [ 0x38, 0x01, 0x02, 0x0C ]
+		for v in init_commands:
+			self.command( v )
+			utime.sleep_ms( 20 )
+		
+		utime.sleep_ms( 200 )
+		
+
+def test_AE_AQM0802():
 	i2c		= I2C( 0, freq = (100 * 1000) )
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
 	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
@@ -115,6 +137,53 @@ def main():
 		
 		for i in range( 10000 ):
 			lcd.print( f"n={i}" )
+
+def test_ACM2004D_FLW_FBW_IIC():
+	i2c		= I2C( 0, freq = (100_000) )
+	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
+	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
+
+	lcd		= ACM2004D_FLW_FBW_IIC( i2c )
+	utime.sleep_ms( 200 )
+	lcd.print( "192.168.100.222" )
+	
+	print( os.uname().machine + " is working!" )
+	print( "available I2C target(s): ", end = "" )
+	print( [ hex( i ) for i in i2c.scan() ] )
+
+	while True:
+		lcd.print( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890!@#$%^&" )
+		utime.sleep( 1 )
+
+		lcd.print( [ "ABCDEFGHIJKLMNOPQRST", "abcdefghijklmnopqrst", "01234567890123456789", "!@#$%^&*()!@#$%^&*()" ] )
+		utime.sleep( 1 )
+		
+		lcd.print( [ "192.168.100.222", "255.255.255.0", "192.168.100.222", "0.0.0.0" ] )
+		utime.sleep( 1 )
+		
+		lcd.clear()
+		utime.sleep( 1 )
+
+		lcd.print( [ "00000000000000000000", "11111111111111111111", "22222222222222222222", "33333333333333333333" ] )
+		utime.sleep( 1 )
+		
+		lcd.print( [ "", None, None, None ] )
+		utime.sleep( 1 )
+		
+		lcd.print( [ None, "", None, None ] )
+		utime.sleep( 1 )
+		
+		lcd.print( [ None, None, "", None ] )
+		utime.sleep( 1 )
+				
+		lcd.print( [ "ABCD", "1234", "abcd", "!@#$" ] )
+		utime.sleep( 1 )
+		
+		for i in range( 10000 ):
+			lcd.print( f"n={i}" )
+		
+def main():
+	test_ACM2004D_FLW_FBW_IIC()
 		
 if __name__ == "__main__":
 	main()
