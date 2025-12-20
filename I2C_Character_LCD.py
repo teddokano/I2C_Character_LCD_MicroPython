@@ -94,7 +94,7 @@ class I2C_Character_LCD:
 class AE_AQM0802( I2C_Character_LCD ):
 	"""
 	AE_AQM0802: 8 characters x 2 lines LCD
-	https://akizukidenshi.com/catalog/g/g106669/
+	https://akizukidenshi.com/catalog/g/g106795/
 	
 	pins	name
 	1		VDD(3.3V)
@@ -205,9 +205,9 @@ class ACM1602( ACM1602NI_FLW_FBW ):
 		super().__init__( i2c )
 		
 def test_AQM0802():
-	i2c		= I2C( 0, freq = (100 * 1000) )
+	#i2c	= I2C( 0, freq = (100 * 1000) )									# for MIMXRT10xx
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
-	#i2c	= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
+	i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )		# for Raspberry Pi Pico
 
 	lcd		= AQM0802( i2c )
 	utime.sleep_ms( 200 )
@@ -249,9 +249,9 @@ def test_AQM0802():
 			lcd.print( f"n={i}" )
 
 def test_ACM2004():
-	i2c		= I2C( 0, freq = (100_000) )
+	#i2c	= I2C( 0, freq = (100_000) )									# for MIMXRT10xx
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
-	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
+	i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )		# for Raspberry Pi Pico
 
 	lcd		= ACM2004( i2c )
 	utime.sleep_ms( 200 )
@@ -293,9 +293,14 @@ def test_ACM2004():
 			lcd.print( f"n={i}" )
 		
 def test_ACM1602():
-	i2c		= I2C( 0, freq = (70_000) )		#	'Cos 100kHz doesn't work with RT1010 board
+
+	###
+	### USE lower I2C-SCL frequency due to the LCD module's I2C signal imcompatibility
+	###
+	
+	#i2c	= I2C( 0, freq = (70_000) )											# for MIMXRT10xx
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (70_000) )
-	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 700_000 )
+	i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 50_000 )			# for Raspberry Pi Pico
 
 	utime.sleep_ms( 200 )
 
@@ -336,8 +341,8 @@ def test_ACM1602():
 			lcd.print( f"n={i}" )
 		
 def main():
-#	test_AQM0802()
-	test_ACM2004()
+	test_AQM0802()
+#	test_ACM2004()
 #	test_ACM1602()
 		
 if __name__ == "__main__":
