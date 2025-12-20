@@ -54,7 +54,15 @@ class I2C_Character_LCD:
 
 
 class AE_AQM0802( I2C_Character_LCD ):
-	
+	'''
+	lib for https://akizukidenshi.com/catalog/g/g106669/
+	pins	name
+	1		VDD(3.3V)
+	2		nRESET
+	3		I2C_SCL
+	4		I2C_SDA
+	5		GND
+	'''
 	DEFAULT_ADDR		= (0x7C >> 1)
 	
 	def __init__( self, i2c ):
@@ -80,6 +88,17 @@ class AQM0802( AE_AQM0802 ):
 		super().__init__( i2c )
 		
 class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
+	'''
+	lib for https://akizukidenshi.com/catalog/g/g117381/
+	pins	name
+	1		VSS(GND)
+	2		VDD(5V)
+	3		V0(NC)
+	4		I2C_SDA
+	5		I2C_SCL
+	6		Backlight+(5V)
+	7		Backlight-(0V)
+	'''
 	DEFAULT_ADDR		= (0x7E >> 1)
 	
 	def __init__( self, i2c ):
@@ -189,8 +208,8 @@ def test_ACM2004():
 			lcd.print( f"n={i}" )
 		
 def main():
-	test_AQM0802()
-#	test_ACM2004()
+#	test_AQM0802()
+	test_ACM2004()
 		
 if __name__ == "__main__":
 	import machine
