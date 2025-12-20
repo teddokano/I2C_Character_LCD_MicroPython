@@ -1,9 +1,17 @@
 from machine	import	Pin, I2C
 
-
-
 class I2C_Character_LCD:
+	"""
+	An abstraction class to make user interface for the character LCDs.
+	"""
+
 	def __init__( self, i2c, address ):
+		"""
+		Parameters
+		----------
+		i2c		: I2C instance
+		address	: int
+		"""
 		self.i2c			= i2c
 		self.address		= address
 		self.device_present	= True
@@ -12,19 +20,34 @@ class I2C_Character_LCD:
 		self.data_byte		= 0x40
 		
 	def send( self, data_flag, value ):
+		"""
+		Parameters
+		----------
+		data_flag	: flag to distinguish command or data
+		value		: int
+		"""
 		if self.device_present:
 			try:
 				self.i2c.writeto( self.address, bytearray( [ self.data_byte if data_flag else self.command_byte, value ] ) )
 			except Exception as e:
-				print( "!!!" )
 				self.device_present	= False
 
 	def command( self, command ):
+		"""
+		Parameters
+		----------
+		command		: int
+		"""
 		self.send( False, command )
 		utime.sleep_us( 27 )
 		utime.sleep_ms( 1 )
 
 	def data( self, data ):
+		"""
+		Parameters
+		----------
+		data		: int
+		"""
 		self.send( True, data )
 		utime.sleep_ms( 1 )
 
@@ -35,6 +58,12 @@ class I2C_Character_LCD:
 		self.data( char )
 
 	def puts( self, str, line_num = 0 ):
+		"""
+		Parameters
+		----------
+		str			: string to put on LCD
+		line_num	: int, option. line number
+		"""
 		line		= line_num % self.lines
 	
 		self.command( 0x80 | (self.line_select[ line ]) )
@@ -43,6 +72,11 @@ class I2C_Character_LCD:
 			self.putc( ord( c ) )
 
 	def print( self, string ):
+		"""
+		Parameters
+		----------
+		string		: a string or list of string
+		"""
 		if isinstance( string, str ):
 			splt	= []
 			for i in range( 0, self.width * self.lines, self.width ):
@@ -58,18 +92,25 @@ class I2C_Character_LCD:
 
 
 class AE_AQM0802( I2C_Character_LCD ):
-	'''
-	lib for https://akizukidenshi.com/catalog/g/g106669/
+	"""
+	AE_AQM0802: 8 characters x 2 lines LCD
+	https://akizukidenshi.com/catalog/g/g106669/
+	
 	pins	name
 	1		VDD(3.3V)
 	2		nRESET
 	3		I2C_SCL
 	4		I2C_SDA
 	5		GND
-	'''
+	"""
 	DEFAULT_ADDR		= (0x7C >> 1)
 	
 	def __init__( self, i2c ):
+		"""
+		Parameters
+		----------
+		i2c		: I2C instance
+		"""
 		self.width			= 8
 		self.line_select	= ( 0x00, 0x40 )
 		super().__init__( i2c, self.DEFAULT_ADDR )
@@ -86,8 +127,10 @@ class AE_AQM0802( I2C_Character_LCD ):
 		utime.sleep_ms( 200 )
 
 class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
-	'''
-	lib for https://akizukidenshi.com/catalog/g/g117381/
+	"""
+	ACM2004D_FLW_FBW_IIC: 20 characters x 4 lines LCD
+	https://akizukidenshi.com/catalog/g/g117381/
+
 	pins	name
 	1		VSS(GND)
 	2		VDD(5V)
@@ -96,10 +139,15 @@ class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
 	5		I2C_SCL
 	6		Backlight+(5V)
 	7		Backlight-(0V)
-	'''
+	"""
 	DEFAULT_ADDR		= (0x7E >> 1)
 	
 	def __init__( self, i2c ):
+		"""
+		Parameters
+		----------
+		i2c		: I2C instance
+		"""
 		self.width			= 20
 		self.line_select	= ( 0x00, 0x40, 0x14, 0x54 )
 		super().__init__( i2c, self.DEFAULT_ADDR )
@@ -112,8 +160,10 @@ class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
 		utime.sleep_ms( 200 )
 
 class ACM1602NI_FLW_FBW( I2C_Character_LCD ):
-	'''
-	lib for https://akizukidenshi.com/catalog/g/g105693/
+	"""
+	ACM1602NI_FLW_FBW: 16 characters x 2 lines LCD
+	https://akizukidenshi.com/catalog/g/g105693/
+	
 	pins	name
 	1		VSS(GND)
 	2		VDD(3.3V)
@@ -122,25 +172,26 @@ class ACM1602NI_FLW_FBW( I2C_Character_LCD ):
 	5		I2C_SDA
 	6		Backlight+(3.3V)
 	7		Backlight-(0V)
-	'''
+	"""
 	DEFAULT_ADDR		= (0xA0 >> 1)
 	
 	def __init__( self, i2c ):
+		"""
+		Parameters
+		----------
+		i2c		: I2C instance
+		"""
 		self.width			= 16
 		self.line_select	= ( 0x00, 0xC0 )
 		super().__init__( i2c, self.DEFAULT_ADDR )
 
 		self.data_byte		= 0x80
 
-		utime.sleep_ms( 15 )
-
 		init_commands		= [ 0x01, 0x38, 0x0F, 0x06 ]
 		for v in init_commands:
 			self.command( v )
 			utime.sleep_ms( 1 )
-		
-		utime.sleep_ms( 2 )
-		
+				
 class AQM0802( AE_AQM0802 ):
 	def __init__( self, i2c ):
 		super().__init__( i2c )
@@ -242,9 +293,9 @@ def test_ACM2004():
 			lcd.print( f"n={i}" )
 		
 def test_ACM1602():
-	i2c		= I2C( 0, freq = (50_000) )
-	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
-	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
+	i2c		= I2C( 0, freq = (70_000) )		#	'Cos 100kHz doesn't work in RT1010 board
+	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (70_000) )
+	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 700_000 )
 
 	utime.sleep_ms( 200 )
 
