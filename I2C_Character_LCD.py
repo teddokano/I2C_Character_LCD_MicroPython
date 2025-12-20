@@ -293,7 +293,7 @@ def test_ACM2004():
 			lcd.print( f"n={i}" )
 		
 def test_ACM1602():
-	i2c		= I2C( 0, freq = (70_000) )		#	'Cos 100kHz doesn't work in RT1010 board
+	i2c		= I2C( 0, freq = (70_000) )		#	'Cos 100kHz doesn't work with RT1010 board
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (70_000) )
 	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 700_000 )
 
@@ -337,8 +337,8 @@ def test_ACM1602():
 		
 def main():
 #	test_AQM0802()
-#	test_ACM2004()
-	test_ACM1602()
+	test_ACM2004()
+#	test_ACM1602()
 		
 if __name__ == "__main__":
 	import machine
