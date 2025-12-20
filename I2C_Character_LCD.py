@@ -16,6 +16,7 @@ class I2C_Character_LCD:
 			try:
 				self.i2c.writeto( self.address, bytearray( [ self.data_byte if data_flag else self.command_byte, value ] ) )
 			except Exception as e:
+				print( "!!!" )
 				self.device_present	= False
 
 	def command( self, command ):
@@ -128,16 +129,17 @@ class ACM1602NI_FLW_FBW( I2C_Character_LCD ):
 		self.width			= 16
 		self.line_select	= ( 0x00, 0xC0 )
 		super().__init__( i2c, self.DEFAULT_ADDR )
-		
+
+		self.data_byte		= 0x80
+
 		utime.sleep_ms( 15 )
 
-		init_commands		= [ 0x01, 0x38, 0x0C, 0x06 ]
+		init_commands		= [ 0x01, 0x38, 0x0F, 0x06 ]
 		for v in init_commands:
-			print( f"{v:x}" )
 			self.command( v )
-			utime.sleep_ms( 5 )
+			utime.sleep_ms( 1 )
 		
-		utime.sleep_ms( 200 )
+		utime.sleep_ms( 2 )
 		
 class AQM0802( AE_AQM0802 ):
 	def __init__( self, i2c ):
@@ -239,15 +241,14 @@ def test_ACM2004():
 		for i in range( 10000 ):
 			lcd.print( f"n={i}" )
 		
-def test_ACM1602NI_FLW_FBW():
-	i2c		= I2C( 0, freq = (100_000) )
+def test_ACM1602():
+	i2c		= I2C( 0, freq = (50_000) )
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
 	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
 
-	print( "available I2C target(s): ", end = "" )
-	print( [ hex( i ) for i in i2c.scan() ] )
+	utime.sleep_ms( 200 )
 
-	lcd		= ACM1602NI_FLW_FBW( i2c )
+	lcd		= ACM1602( i2c )
 	utime.sleep_ms( 200 )
 	lcd.print( "192.168.100.222" )
 	
