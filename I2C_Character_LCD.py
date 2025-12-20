@@ -1,7 +1,5 @@
 from machine	import	Pin, I2C
-import machine
-import	utime
-import	os
+
 
 
 class I2C_Character_LCD:
@@ -56,6 +54,7 @@ class I2C_Character_LCD:
 
 
 class AE_AQM0802( I2C_Character_LCD ):
+	
 	DEFAULT_ADDR		= (0x7C >> 1)
 	
 	def __init__( self, i2c ):
@@ -65,7 +64,7 @@ class AE_AQM0802( I2C_Character_LCD ):
 		self.line_select	= ( 0x00, 0x40 )
 		super().__init__( i2c, self.DEFAULT_ADDR )
 		
-		init_commands		= [ [ 0x38, 0x39, 0x14, 0x7A, 0x54, 0x6C ], [0x38, 0x0C, 0x01 ] ]	# for 5.0V operation
+#		init_commands		= [ [ 0x38, 0x39, 0x14, 0x7A, 0x54, 0x6C ], [0x38, 0x0C, 0x01 ] ]	# for 5.0V operation
 		init_commands		= [ [ 0x38, 0x39, 0x14, 0x70, 0x56, 0x6C ], [0x38, 0x0C, 0x01 ] ]	# for 3.3V operation
 
 		for seq in init_commands:
@@ -75,6 +74,10 @@ class AE_AQM0802( I2C_Character_LCD ):
 			utime.sleep_ms( 200 )
 		
 		utime.sleep_ms( 200 )
+
+class AQM0802( AE_AQM0802 ):
+	def __init__( self, i2c ):
+		super().__init__( i2c )
 		
 class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
 	DEFAULT_ADDR		= (0x7E >> 1)
@@ -92,14 +95,17 @@ class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
 			utime.sleep_ms( 20 )
 		
 		utime.sleep_ms( 200 )
-		
 
-def test_AE_AQM0802():
+class ACM2004( ACM2004D_FLW_FBW_IIC ):
+	def __init__( self, i2c ):
+		super().__init__( i2c )
+		
+def test_AQM0802():
 	i2c		= I2C( 0, freq = (100 * 1000) )
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
-	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
+	#i2c	= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
 
-	lcd		= AE_AQM0802( i2c )
+	lcd		= AQM0802( i2c )
 	utime.sleep_ms( 200 )
 	lcd.print( "192.168.100.222" )
 	
@@ -138,12 +144,12 @@ def test_AE_AQM0802():
 		for i in range( 10000 ):
 			lcd.print( f"n={i}" )
 
-def test_ACM2004D_FLW_FBW_IIC():
+def test_ACM2004():
 	i2c		= I2C( 0, freq = (100_000) )
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
 	#i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
 
-	lcd		= ACM2004D_FLW_FBW_IIC( i2c )
+	lcd		= ACM2004( i2c )
 	utime.sleep_ms( 200 )
 	lcd.print( "192.168.100.222" )
 	
@@ -183,7 +189,12 @@ def test_ACM2004D_FLW_FBW_IIC():
 			lcd.print( f"n={i}" )
 		
 def main():
-	test_ACM2004D_FLW_FBW_IIC()
+	test_AQM0802()
+#	test_ACM2004()
 		
 if __name__ == "__main__":
+	import machine
+	import	utime
+	import	os
+	
 	main()
