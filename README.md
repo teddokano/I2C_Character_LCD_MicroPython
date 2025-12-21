@@ -5,46 +5,61 @@ I²C character LCD class drivers for [AE-AQM0802](https://akizukidenshi.com/cata
 
 The code runs on [MicroPython](https://micropython.org), operation is checked on [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/), [MIMXRT1050-EVKB](https://www.nxp.com/design/design-center/development-boards-and-designs/MIMXRT1050-EVK) and [MIMXRT1010-EVK](https://www.nxp.com/design/design-center/development-boards-and-designs/i-mx-evaluation-and-development-boards/i-mx-rt1010-evaluation-kit:MIMXRT1010-EVK).  
 
+A [video](https://youtube.com/shorts/FqGNWmqnXug) is available to show how are those can be looked like.   
+[![](https://github.com/teddokano/additional_files/blob/main/I2C_Character_LCD/video.png)](https://youtube.com/shorts/FqGNWmqnXug)
+
+
 ## How can it be used?
 
-### Select test function for target LCD
+Refer to sample code. Sample code available for each MCUs and LCDs.  
+Before trying the example code, upload `I2C_Character_LCD.py` into flash storage area of target microcontroller board. 
+![](https://github.com/teddokano/I2C_Character_LCD_MicroPython/blob/main/examples/RaspberryPiPico/README_before_trying_sample_code.png)
 
-In bottom of the `I2C_Character_LCD.py` file, there is a `main()` function. In this function, enable one of test function calls.  
+Next code shows a sample of using ACM2004: 20 characters x 4 lines LCD.  
+The sample is available as `example/RaspberryPiPico/ACM2004.py`.  
 
 ```python
-def main():
-	test_AQM0802()
-#	test_ACM2004()
-#	test_ACM1602()
-		
-if __name__ == "__main__":
-	import machine
-	import	utime
-	import	os
+from machine	import	I2C, Pin
+from time		import	sleep
+from I2C_Character_LCD	import	ACM2004
+
+i2c	= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )
+lcd	= ACM2004( i2c )
+
+while True:
+	lcd.print( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890!@#$%^&" )
+	sleep( 1 )
+
+	lcd.print( [ "ABCDEFGHIJKLMNOPQRST", "abcdefghijklmnopqrst", "01234567890123456789", "!@#$%^&*()!@#$%^&*()" ] )
+	sleep( 1 )
 	
-	main()
+	lcd.clear()
+	sleep( 1 )
 ```
 
-### Select I2C constructing method for host MCU board
+### functions
+##### `print()`
+`print()` function is available to print the characters.   
+The `print()` can take two types of argument.  
+* If an string is given as the argument, the text wraps and is displayed on the next line.   
+* If a list of strings is given, each strings will be shown in lines. If the item in the list is `None`, the line will be kept as it is.   
 
-In each test functions, it has I2C constructor calls. enable one of three types of call.   
+##### `clear()`
+Another function: `clear()` is available to clear the screen.  
 
-```python
-def test_AQM0802():
-	#i2c	= I2C( 0, freq = (100 * 1000) )									# for MIMXRT10xx
-	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (400_000) )
-	i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )		# for Raspberry Pi Pico
-```
 
-### Connect hardware
 
-#### MCU  
+
+
+## Connecting hardware
+
+### MCU  
 Signal|Raspberry Pi Pico|MIMXRT1050|MIMXRT1010
 ---|---|---|---
 SDA|Pin1(GP0)|A4/ADC4/SDA|D14/I2C_SDA
 SCL|Pin2(GP1)|A5/ADC5/SCL|D15/I2C_SCL
 
-#### LCD
+### LCD
 AE-AQM0802
 Pin#|Name
 ---|---
