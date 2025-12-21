@@ -1,4 +1,5 @@
-from machine	import	Pin, I2C
+from machine	import	I2C
+import	time
 
 class I2C_Character_LCD:
 	"""
@@ -39,8 +40,8 @@ class I2C_Character_LCD:
 		command		: int
 		"""
 		self.send( False, command )
-		utime.sleep_us( 27 )
-		utime.sleep_ms( 1 )
+		time.sleep_us( 27 )
+		time.sleep_ms( 1 )
 
 	def data( self, data ):
 		"""
@@ -49,7 +50,7 @@ class I2C_Character_LCD:
 		data		: int
 		"""
 		self.send( True, data )
-		utime.sleep_ms( 1 )
+		time.sleep_ms( 1 )
 
 	def clear( self ):
 		self.command( 0x01 )
@@ -122,9 +123,9 @@ class AE_AQM0802( I2C_Character_LCD ):
 			for v in seq:
 				self.command( v )
 			
-			utime.sleep_ms( 200 )
+			time.sleep_ms( 200 )
 		
-		utime.sleep_ms( 200 )
+		time.sleep_ms( 200 )
 
 class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
 	"""
@@ -155,9 +156,9 @@ class ACM2004D_FLW_FBW_IIC( I2C_Character_LCD ):
 		init_commands		= [ 0x38, 0x01, 0x02, 0x0C ]
 		for v in init_commands:
 			self.command( v )
-			utime.sleep_ms( 20 )
+			time.sleep_ms( 20 )
 		
-		utime.sleep_ms( 200 )
+		time.sleep_ms( 200 )
 
 class ACM1602NI_FLW_FBW( I2C_Character_LCD ):
 	"""
@@ -190,7 +191,7 @@ class ACM1602NI_FLW_FBW( I2C_Character_LCD ):
 		init_commands		= [ 0x01, 0x38, 0x0F, 0x06 ]
 		for v in init_commands:
 			self.command( v )
-			utime.sleep_ms( 1 )
+			time.sleep_ms( 1 )
 				
 class AQM0802( AE_AQM0802 ):
 	def __init__( self, i2c ):
@@ -210,7 +211,7 @@ def test_AQM0802():
 	i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )		# for Raspberry Pi Pico
 
 	lcd		= AQM0802( i2c )
-	utime.sleep_ms( 200 )
+	time.sleep_ms( 200 )
 	lcd.print( "192.168.100.222" )
 	
 	print( os.uname().machine + " is working!" )
@@ -219,31 +220,31 @@ def test_AQM0802():
 
 	while True:
 		lcd.print( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( "192.168.100.222" )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( "10.0.1.2" )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 
 		lcd.print( [ "ABCDEFGH", "12345678" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ "abcdefgh", None ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.clear()
-		utime.sleep( 1 )
+		time.sleep( 1 )
 
 		lcd.print( [ "ABCD", "1234" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ "abc", "" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 
 		lcd.print( [ "", "ABC" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		for i in range( 10000 ):
 			lcd.print( f"n={i}" )
@@ -254,7 +255,7 @@ def test_ACM2004():
 	i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 400_000 )		# for Raspberry Pi Pico
 
 	lcd		= ACM2004( i2c )
-	utime.sleep_ms( 200 )
+	time.sleep_ms( 200 )
 	lcd.print( "192.168.100.222" )
 	
 	print( os.uname().machine + " is working!" )
@@ -263,31 +264,31 @@ def test_ACM2004():
 
 	while True:
 		lcd.print( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890!@#$%^&" )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 
 		lcd.print( [ "ABCDEFGHIJKLMNOPQRST", "abcdefghijklmnopqrst", "01234567890123456789", "!@#$%^&*()!@#$%^&*()" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ "192.168.100.222", "255.255.255.0", "192.168.100.1", "0.0.0.0" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.clear()
-		utime.sleep( 1 )
+		time.sleep( 1 )
 
 		lcd.print( [ "00000000000000000000", "11111111111111111111", "22222222222222222222", "33333333333333333333" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ "", None, None, None ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ None, "", None, None ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ None, None, "", None ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 				
 		lcd.print( [ "ABCD", "1234", "abcd", "!@#$" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		for i in range( 10000 ):
 			lcd.print( f"n={i}" )
@@ -302,10 +303,10 @@ def test_ACM1602():
 	#i2c	= machine.SoftI2C( sda = "D14", scl = "D15", freq = (70_000) )
 	i2c		= I2C( 0, sda = Pin( 0 ), scl = Pin( 1 ), freq = 50_000 )			# for Raspberry Pi Pico
 
-	utime.sleep_ms( 200 )
+	time.sleep_ms( 200 )
 
 	lcd		= ACM1602( i2c )
-	utime.sleep_ms( 200 )
+	time.sleep_ms( 200 )
 	lcd.print( "192.168.100.222" )
 	
 	print( os.uname().machine + " is working!" )
@@ -314,28 +315,28 @@ def test_ACM1602():
 
 	while True:
 		lcd.print( "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!@#$" )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 
 		lcd.print( [ "ABCDEFGHIJKLMNOP", "0123456789012345" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ "192.168.100.222", "255.255.255.0" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.clear()
-		utime.sleep( 1 )
+		time.sleep( 1 )
 
 		lcd.print( [ "0000000000000000", "1111111111111111" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ "", None ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ None, "" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		lcd.print( [ "ABCD", "1234", "abcd", "!@#$" ] )
-		utime.sleep( 1 )
+		time.sleep( 1 )
 		
 		for i in range( 10000 ):
 			lcd.print( f"n={i}" )
@@ -346,8 +347,8 @@ def main():
 #	test_ACM1602()
 		
 if __name__ == "__main__":
-	import machine
-	import	utime
+	from machine import	Pin
+	import 	machine
 	import	os
 	
 	main()
